@@ -1,9 +1,16 @@
 from typing import List
 from text import cleaners
-from torchtext.vocab import Vocab
+from text import cleaners
+from utils.vocab import Vocab
 
 
-def tokenizer(text: str, vocab: Vocab, cleaner_names: List[str], language="en-us", cleaned_text=False) -> List[int]:
+def tokenizer(
+    text: str,
+    vocab: Vocab,
+    cleaner_names: List[str],
+    language="en-us",
+    cleaned_text=False,
+) -> List[int]:
     """Converts a string of text to a sequence of IDs corresponding to the symbols in the text.
     Args:
         text: string to convert to a sequence of IDs
@@ -24,7 +31,9 @@ def detokenizer(sequence: List[int], vocab: Vocab) -> str:
     return "".join(vocab.lookup_tokens(sequence))
 
 
-def _clean_text(text: str, vocab: Vocab, cleaner_names: List[str], language="en-us") -> str:
+def _clean_text(
+    text: str, vocab: Vocab, cleaner_names: List[str], language="en-us"
+) -> str:
     for name in cleaner_names:
         cleaner = getattr(cleaners, name)
         assert callable(cleaner), f"Unknown cleaner: {name}"
@@ -36,6 +45,13 @@ if __name__ == "__main__":
     from utils.task import load_vocab
 
     vocab = load_vocab("datasets/ljs_base/vocab.txt")
-    cleaner_names = ["phonemize_text", "add_spaces", "tokenize_text", "delete_unks", "add_bos_eos", "detokenize_sequence"]
+    cleaner_names = [
+        "phonemize_text",
+        "add_spaces",
+        "tokenize_text",
+        "delete_unks",
+        "add_bos_eos",
+        "detokenize_sequence",
+    ]
     text = "Well, I like pizza. <laugh> You know … Who doesn't like pizza? <laugh>"
     print(tokenizer(text, vocab, cleaner_names, language="en-us", cleaned_text=False))

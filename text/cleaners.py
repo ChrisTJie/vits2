@@ -7,7 +7,7 @@ hyperparameter.
 
 import re
 from typing import List
-from torchtext.vocab import Vocab
+from utils.vocab import Vocab
 from phonemizer import phonemize
 from phonemizer.separator import Separator
 
@@ -38,7 +38,17 @@ def expand_numbers(text: str, *args, **kwargs):
 
 
 def phonemize_text(text: List[str] | str, *args, language="en-us", **kwargs):
-    return phonemize(text, language=language, backend="espeak", separator=separator, strip=True, preserve_punctuation=True, punctuation_marks=_preserved_symbols_re, with_stress=True, njobs=8)
+    return phonemize(
+        text,
+        language=language,
+        backend="espeak",
+        separator=separator,
+        strip=True,
+        preserve_punctuation=True,
+        punctuation_marks=_preserved_symbols_re,
+        with_stress=True,
+        njobs=8,
+    )
 
 
 def add_spaces(text: str, *args, **kwargs):

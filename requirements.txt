@@ -1,7 +1,7 @@
 torch
 torchvision
 torchaudio
-torchtext
+torchcodec
 
 phonemizer
 inflect
@@ -18,3 +18,4 @@ tqdm
 PyYAML
 ipykernel
 pytorch_lightning
+jupyterlab

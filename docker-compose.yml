@@ -1,0 +1,38 @@
+services:
+  vits2-train:
+    build: .
+    container_name: vits2-train
+    volumes:
+      - .:/app
+      - ./datasets:/app/datasets
+      - ./DUMMY1:/app/DUMMY1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - PYTHONUNBUFFERED=1
+    shm_size: "2gb"
+    command: python train.py -c datasets/ljs_base/config.yaml -m ljs_base
+
+  vits2-inference:
+    build: .
+    container_name: vits2-inference
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    command: jupyter lab --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token=''

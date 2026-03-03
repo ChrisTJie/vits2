@@ -37,22 +37,44 @@ def load_checkpoint(checkpoint_path, model, optimizer=None):
         model.module.load_state_dict(new_state_dict)
     else:
         model.load_state_dict(new_state_dict)
-    logger.info("Loaded checkpoint '{}' (iteration {})".format(checkpoint_path, iteration))
+    logger.info(
+        "Loaded checkpoint '{}' (iteration {})".format(checkpoint_path, iteration)
+    )
     del checkpoint_dict
     torch.cuda.empty_cache()
     return model, optimizer, learning_rate, iteration
 
 
 def save_checkpoint(model, optimizer, learning_rate, iteration, checkpoint_path):
-    logger.info("Saving model and optimizer state at iteration {} to {}".format(iteration, checkpoint_path))
+    logger.info(
+        "Saving model and optimizer state at iteration {} to {}".format(
+            iteration, checkpoint_path
+        )
+    )
     if hasattr(model, "module"):
         state_dict = model.module.state_dict()
     else:
         state_dict = model.state_dict()
-    torch.save({"model": state_dict, "iteration": iteration, "optimizer": optimizer.state_dict(), "learning_rate": learning_rate}, checkpoint_path)
+    torch.save(
+        {
+            "model": state_dict,
+            "iteration": iteration,
+            "optimizer": optimizer.state_dict(),
+            "learning_rate": learning_rate,
+        },
+        checkpoint_path,
+    )
 
 
-def summarize(writer, global_step, scalars={}, histograms={}, images={}, audios={}, sample_rate=22050):
+def summarize(
+    writer,
+    global_step,
+    scalars={},
+    histograms={},
+    images={},
+    audios={},
+    sample_rate=22050,
+):
     for k, v in scalars.items():
         writer.add_scalar(k, v, global_step)
     for k, v in histograms.items():
@@ -110,7 +132,9 @@ def plot_alignment_to_numpy(alignment, info=None):
     import numpy as np
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    im = ax.imshow(alignment.transpose(), aspect="auto", origin="lower", interpolation="none")
+    im = ax.imshow(
+        alignment.transpose(), aspect="auto", origin="lower", interpolation="none"
+    )
     fig.colorbar(im, ax=ax)
     xlabel = "Decoder timestep"
     if info is not None:
@@ -131,16 +155,18 @@ def load_vocab(vocab_file: str):
     Args:
         vocab_file (str): Path to vocabulary file
     Returns:
-        torchtext.vocab.Vocab: Vocabulary object
+        utils.vocab.Vocab: Vocabulary object
     """
-    from torchtext.vocab import vocab as transform_vocab
+    from utils.vocab import build_vocab as transform_vocab
     from text.symbols import UNK_ID, special_symbols
 
     vocab = {}
     with open(vocab_file, "r") as f:
         for line in f:
-            token, index = line.split()
-            vocab[token] = int(index)
+            parts = line.split()
+            if len(parts) >= 2:
+                token, index = parts[0], parts[1]
+                vocab[token] = int(index)
     vocab = transform_vocab(vocab, specials=special_symbols)
     vocab.set_default_index(UNK_ID)
     return vocab
@@ -179,7 +205,11 @@ def load_filepaths_and_text(filename, split="|"):
 def check_git_hash(model_dir):
     source_dir = os.path.dirname(os.path.realpath(__file__))
     if not os.path.exists(os.path.join(source_dir, ".git")):
-        logger.warn("{} is not a git repository, therefore hash value comparison will be ignored.".format(source_dir))
+        logger.warn(
+            "{} is not a git repository, therefore hash value comparison will be ignored.".format(
+                source_dir
+            )
+        )
         return
 
     cur_hash = subprocess.getoutput("git rev-parse HEAD")
@@ -188,7 +218,11 @@ def check_git_hash(model_dir):
     if os.path.exists(path):
         saved_hash = open(path).read()
         if saved_hash != cur_hash:
-            logger.warn("git hash values are different. {}(saved) != {}(current)".format(saved_hash[:8], cur_hash[:8]))
+            logger.warn(
+                "git hash values are different. {}(saved) != {}(current)".format(
+                    saved_hash[:8], cur_hash[:8]
+                )
+            )
     else:
         open(path, "w").write(cur_hash)
 
