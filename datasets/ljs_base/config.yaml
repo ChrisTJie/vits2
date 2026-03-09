@@ -1,62 +1,62 @@
 train:
-  log_interval: 100
-  eval_interval: 1000
-  seed: 1234
-  epochs: 20000
-  learning_rate: 2.0e-4
-  betas: [0.8, 0.99]
-  eps: 1.0e-09
-  batch_size: 64 # TODO Try more
-  fp16_run: true
-  lr_decay: 0.999875
-  segment_size: 8192
-  init_lr_ratio: 1
-  warmup_epochs: 0
-  c_mel: 45
-  c_kl_text: 0 # default: 0
-  c_kl_dur: 2 # default: 2
-  c_kl_audio: 0.05 # 0.05 Allow more audio variation. default: 1
+  log_interval: 100 # 訓練日誌紀錄間隔
+  eval_interval: 1000 # 模型評估間隔
+  seed: 1234 # 隨機種子
+  epochs: 20000 # 總訓練輪數
+  learning_rate: 2.0e-4 # 初始學習率
+  betas: [0.8, 0.99] # Adam 優化器參數
+  eps: 1.0e-09 # 優化器穩定係數
+  batch_size: 8 # 批次大小 # TODO Try more
+  fp16_run: true # 是否啟用半精度訓練
+  lr_decay: 0.999875 # 學習率衰減係數
+  segment_size: 8192 # 訓練音訊片段長度
+  init_lr_ratio: 1 # 初始學習率比例
+  warmup_epochs: 0 # 熱身訓練輪數
+  c_mel: 45 # Mel 損失函數權重
+  c_kl_text: 0 # 文本 KL 散度權重，預設：0
+  c_kl_dur: 2 # 時長 KL 散度權重，預設：2
+  c_kl_audio: 0.05 # 音訊 KL 散度權重，預設：1 (調低可增加音訊多樣性)
 
 data:
-  training_files: datasets/ljs_base/filelists/train.txt
-  validation_files: datasets/ljs_base/filelists/val.txt
-  vocab_file: datasets/ljs_base/vocab.txt
-  text_cleaners:
+  training_files: datasets/ljs_base/filelists/train.txt # 訓練清單路徑
+  validation_files: datasets/ljs_base/filelists/val.txt # 驗證清單路徑
+  vocab_file: datasets/ljs_base/vocab.txt # 詞彙表檔案路徑
+  text_cleaners: # 文本清洗器
     - phonemize_text
     - add_spaces
     - tokenize_text
     - add_bos_eos
-  cleaned_text: true
-  language: en-us
-  bits_per_sample: 16
-  sample_rate: 22050
-  n_fft: 2048
-  hop_length: 256
-  win_length: 1024
-  n_mels: 80 # 100 works better with "slaney" mel-transform. default: 80
-  f_min: 0
-  f_max:
-  n_speakers: 0
-  use_mel: true
+  cleaned_text: true # 是否已清洗文本
+  language: en-us # 語言設定
+  bits_per_sample: 16 # 每採樣點位元數
+  sample_rate: 22050 # 採樣率
+  n_fft: 2048 # FFT 點數
+  hop_length: 256 # 影格移位
+  win_length: 1024 # 窗函數長度
+  n_mels: 80 # Mel 頻譜通道數，預設：80
+  f_min: 0 # 頻率下限
+  f_max: # 頻率上限
+  n_speakers: 0 # 說話者數量
+  use_mel: true # 是否使用 Mel 頻譜
 
 model:
-  inter_channels: 192
-  hidden_channels: 192
-  filter_channels: 768
-  n_heads: 2
-  n_layers: 6
-  n_layers_q: 12 # default: 16
-  n_flows: 8 # default: 4
-  kernel_size: 3
-  p_dropout: 0.1
-  speaker_cond_layer: 0 # 0 to disable speaker conditioning
-  resblock: "1"
-  resblock_kernel_sizes: [3, 7, 11]
-  resblock_dilation_sizes: [[1, 3, 5], [1, 3, 5], [1, 3, 5]]
-  upsample_rates: [8, 8, 2, 2]
-  upsample_initial_channel: 512
-  upsample_kernel_sizes: [16, 16, 4, 4]
-  mas_noise_scale: 0.01 # 0.0 to disable Gaussian noise in MAS
-  mas_noise_scale_decay: 2.0e-06
-  use_spectral_norm: false
-  use_transformer_flow: false
+  inter_channels: 192 # 中間通道數
+  hidden_channels: 192 # 隱藏通道數
+  filter_channels: 768 # 濾波器通道數
+  n_heads: 2 # 注意力機制頭數
+  n_layers: 6 # 層數
+  n_layers_q: 12 # Posterior Encoder 層數，預設：16
+  n_flows: 8 # Flow 層數，預設：4
+  kernel_size: 3 # 卷積核大小
+  p_dropout: 0.1 # Dropout 比例
+  speaker_cond_layer: 0 # 說話者條件層，0 為停用
+  resblock: "1" # ResBlock 類型
+  resblock_kernel_sizes: [3, 7, 11] # ResBlock 卷積核大小
+  resblock_dilation_sizes: [[1, 3, 5], [1, 3, 5], [1, 3, 5]] # ResBlock 擴張率
+  upsample_rates: [8, 8, 2, 2] # 上採樣倍率
+  upsample_initial_channel: 512 # 上採樣初始通道數
+  upsample_kernel_sizes: [16, 16, 4, 4] # 上採樣卷積核大小
+  mas_noise_scale: 0.01 # MAS 高斯雜訊比例，0 為停用
+  mas_noise_scale_decay: 2.0e-06 # MAS 雜訊衰減係數
+  use_spectral_norm: false # 是否使用頻譜歸一化
+  use_transformer_flow: false # 是否在 Flow 中使用 Transformer

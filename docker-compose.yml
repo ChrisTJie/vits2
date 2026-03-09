@@ -1,29 +1,32 @@
 services:
-  vits2-train:
-    build: .
-    container_name: vits2-train
+  vits2-train: # 訓練服務
+    build: . # 使用當前目錄的 Dockerfile 構建鏡像
+    container_name: vits2-train # 容器名稱
     volumes:
-      - .:/app
-      - ./datasets:/app/datasets
-      - ./DUMMY1:/app/DUMMY1
+      - .:/app # 掛載專案根目錄到容器內的 /app
+      - ./datasets:/app/datasets # 掛載數據集目錄
+      - ./DUMMY1:/app/DUMMY1 # 掛載 DUMMY1 目錄
     deploy:
       resources:
         reservations:
           devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+            - driver: nvidia # 使用 NVIDIA GPU 驅動
+              count: 1 # 明確指定使用 1 張顯卡
+              capabilities: [gpu] # 啟用 GPU 能力
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - PYTHONUNBUFFERED=1
-    shm_size: "2gb"
-    command: python train.py -c datasets/ljs_base/config.yaml -m ljs_base
+      - NVIDIA_VISIBLE_DEVICES=0 # 指定可見的 GPU 編號
+      - PYTHONUNBUFFERED=1 # 禁用 Python 輸出緩衝，確保日誌即時顯示
+    # 擴大共享記憶體，防止 DataLoader 報錯
+    shm_size: "8gb"
+    # 或者可以使用 ipc: host 直接共用主機的共享記憶體
+    profiles: ["train"] # 設定服務設定檔為 train，需手動指定啟動
+    command: python train.py -c datasets/ljs_base/config.yaml -m ljs_base # 啟動訓練指令
 
-  vits2-inference:
+  vits2-inference: # 推論服務 (Jupyter Lab)
     build: .
     container_name: vits2-inference
     ports:
-      - "8888:8888"
+      - "8888:8888" # 將容器的 8888 端口映射到主機的 8888
     volumes:
       - .:/app
     deploy:
@@ -31,8 +34,10 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              count: 1
               capabilities: [gpu]
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-    command: jupyter lab --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token=''
+      - NVIDIA_VISIBLE_DEVICES=0
+    shm_size: "4gb" # 推論服務的共享記憶體
+    profiles: ["inference"] # 設定服務設定檔為 inference
+    command: jupyter lab --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token='' # 啟動 Jupyter Lab
