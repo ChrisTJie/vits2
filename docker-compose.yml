@@ -40,3 +40,13 @@ services:
     shm_size: "4gb" # 推論服務的共享記憶體
     profiles: ["inference"] # 設定服務設定檔為 inference
     command: jupyter lab --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token='' # 啟動 Jupyter Lab
+
+  vits2-resample: # 音訊重採樣服務
+    build: .
+    container_name: vits2-resample
+    volumes:
+      - .:/app
+      - ./datasets:/app/datasets
+    profiles: ["resample"]
+    # 預設將 datasets 目錄下的 wav 轉換到 datasets_22k，採樣率 22050
+    command: bash /app/scripts/resample.sh /app/datasets/ljs_base/wavs /app/datasets/ljs_base/wavs_22k 22050
