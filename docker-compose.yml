@@ -5,7 +5,6 @@ services:
     volumes:
       - .:/app # 掛載專案根目錄到容器內的 /app
       - ./datasets:/app/datasets # 掛載數據集目錄
-      - ./DUMMY1:/app/DUMMY1 # 掛載 DUMMY1 目錄
     deploy:
       resources:
         reservations:

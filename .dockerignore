@@ -1,0 +1,16 @@
+# 忽略數據集，因為我們是用掛載 (volume) 的，構建時不需要
+datasets/
+DUMMY1/
+DUMMY2/
+DUMMY3/
+
+# 忽略訓練結果
+logs/
+checkpoints/
+*.pth
+
+# 忽略虛擬環境與快取
+__pycache__/
+.git/
+.ipynb_checkpoints/
+venv/
