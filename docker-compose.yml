@@ -1,6 +1,8 @@
 services:
   vits2-train: # 訓練服務
-    build: . # 使用當前目錄的 Dockerfile 構建鏡像
+    build:
+      context: . # 指定構建上下文為專案根目錄
+      dockerfile: Dockerfile # 使用專案根目錄下的 Dockerfile 進行環境建置 (包含 CUDA 12.1, Python 3.11)
     container_name: vits2-train # 容器名稱
     volumes:
       - .:/app # 掛載專案根目錄到容器內的 /app
@@ -19,7 +21,8 @@ services:
     shm_size: "8gb"
     # 或者可以使用 ipc: host 直接共用主機的共享記憶體
     profiles: ["train"] # 設定服務設定檔為 train，需手動指定啟動
-    command: python train.py -c datasets/ljs_base/config.yaml -m ljs_base # 啟動訓練指令
+    # 指定訓練指令，透過 -c 參數載入 config.yaml，該檔案內定義了訓練語言 (如: en-us, cmn, ja)
+    command: python train.py -c datasets/ljs_base/config.yaml -m ljs_base
 
   vits2-inference: # 推論服務 (Jupyter Lab)
     build: .
